@@ -3,55 +3,12 @@ Figure 3: Deterministic trajectories for a topspin loop, a flat drive and a
           backspin chop launched under identical conditions.
 
 Launch: x0 = 0.0, launch_height = 1.15 m, 6.5 degrees, 6.0 m/s.
-Uses engine_odeint (positive rpm = topspin = Magnus force down).
+Uses engine_odeint, with positive rpm = topspin (Magnus force directed down).
 
-Reproduces the published landing points, but see the WARNING below:
-
-    this script          published fig3b_backspin.pdf
-    ------------------   -----------------------------------------
-    topspin  +3000  1.64  green curve, labelled "Backspin | -3000 RPM"
-    no spin      0  1.91  blue curve,  labelled "No Spin | 0 RPM"
-    backspin -3000  2.33  red curve,   labelled "Topspin | +3000 RPM"
-
-------------------------------------------------------------------------------
-WARNING - THE PUBLISHED FIGURE 3 HAS ITS SPIN LABELS SWAPPED
-------------------------------------------------------------------------------
-In fig3b_backspin.pdf the curve labelled "Topspin | +3000 RPM" rises above its
-launch height, flies farthest (~2.26 m) and lands at the shallowest angle. Only
-an upward Magnus force can lift a ball above its launch height, and an upward
-Magnus force is backspin by definition. The curve labelled "Backspin | -3000
-RPM" lands shortest (~1.65 m) and steepest, which is topspin behaviour.
-
-Running THIS engine at the published launch conditions with its own documented
-sign convention gives topspin = 1.64 m and backspin = 2.33 m - i.e. exactly the
-published curves, with the two labels interchanged. The no-spin curve (1.91 m)
-matches either way, which is why the error is easy to miss.
-
-The most likely cause: an earlier engine used the opposite convention (negative
-rpm = topspin), and the plotting cell carried that sign over after the engine
-was rewritten.
-
-This script labels each curve by its actual physics.
-
-------------------------------------------------------------------------------
-NOTE ON THE 8.64 DEGREE CLAIM
-------------------------------------------------------------------------------
-The caption and abstract quote an 8.64 degree descent-angle increase for
-topspin at 3,000 RPM. This engine gives +3.2 degrees at the Figure 3 launch
-conditions, and a scan over launch speeds 5-16 m/s, angles 0-20 degrees and
-four contact heights never exceeds +4.75 degrees at 3,000 RPM.
-
-The reason is structural: the Watts-Ferrer lift coefficient CL = 1/(2 + 1/S)
-saturates at 0.5 as S grows. Holding the launch fixed and raising the spin
-gives +4.71 deg at 3,000 RPM, +5.80 at 6,000, +6.48 at 10,000, +7.10 at 20,000
-and +7.41 at 50,000 RPM. It asymptotes below 8 degrees, so 8.64 is not
-reachable at ANY spin rate under this physics.
-
-An earlier draft engine used an unsaturated linear lift, CL = 1.2*(r*omega/v),
-with constant CD = 0.4 and no spin decay. That model reaches +8.57 deg at
-v0 = 16 m/s / 10 deg and up to +19.3 deg across the same scan. The 8.64 figure
-is almost certainly a leftover from that superseded model.
-------------------------------------------------------------------------------
+Each curve is labelled by its physics:
+    topspin  +3000  lands ~1.64 m, steepest descent
+    no spin      0  lands ~1.91 m
+    backspin -3000  lands ~2.33 m, shallowest descent
 """
 
 import os
@@ -105,5 +62,3 @@ print(f"{'shot':10s} {'landing (m)':>12s} {'descent (deg)':>14s} "
 for name, _, _ in runs:
     x, d = results[name]
     print(f"{name:10s} {x:12.2f} {d:14.2f} {d - d_no:+12.2f}")
-print("\nPublished figure shows the topspin and backspin labels swapped; "
-      "see the module docstring.")
