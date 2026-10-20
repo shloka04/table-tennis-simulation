@@ -2,3 +2,10 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 .DS_Store
+
+# SpinDOE dataset and everything derived from it (fetched by the user, see README)
+spindoe/
+shots/
+
+# synthetic self-check files written by validate_real_data.py
+_syn_*.csv

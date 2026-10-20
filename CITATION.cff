@@ -2,16 +2,23 @@ cff-version: 1.2.0
 message: "If you use this software, please cite the paper below."
 title: "Topspin as an Aerodynamic Stabiliser: simulation code"
 authors:
-  - family-names: "M."
+  - family-names: "Maruthi"
     given-names: "Shloka"
 license: MIT
 repository-code: "https://github.com/shloka04/table-tennis-simulation"
+keywords:
+  - table tennis
+  - Magnus force
+  - Monte Carlo simulation
+  - aerodynamics
+  - stochastic modelling
+  - sports physics
 preferred-citation:
   type: conference-paper
   title: "Topspin as an Aerodynamic Stabiliser: A Physics Simulation and
     Probabilistic Analysis of Table Tennis Ball Flight"
   authors:
-    - family-names: "M."
+    - family-names: "Maruthi"
       given-names: "Shloka"
   conference:
     name: "SIMULTECH 2026 - 16th International Conference on Simulation and

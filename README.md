@@ -1,114 +1,120 @@
 # Topspin as an Aerodynamic Stabiliser
 
-Simulation code for **"Topspin as an Aerodynamic Stabiliser: A Physics
-Simulation and Probabilistic Analysis of Table Tennis Ball Flight"**
-(SIMULTECH 2026, Paper #59, Porto, Portugal).
+Simulation code for **"Topspin as an Aerodynamic Stabiliser: A Physics Simulation and Probabilistic Analysis of Table Tennis Ball Flight"**. An earlier baseline version of the engine was presented at SIMULTECH 2026 in Porto; this repository carries the extended work, with the unified engine, the three-dimensional sidespin extension and validation against recorded trajectories.
 
-Every script in `src/` regenerates one or more figures from the paper.
+Every figure and number below can be regenerated from the scripts here.
 
-## Layout
+## The question
 
-```
-src/         simulation code, one script per paper figure
-figures/     generated output (PNG, 300 dpi)
-```
+Table tennis coaches tell you to loop the ball rather than hit it flat, and they're right, but the usual explanation stops at "topspin brings the ball down so you can hit harder." That's true and it isn't the whole story. I wanted to know what topspin is actually doing once you admit that nobody executes a shot perfectly — that your bat speed, your angle and your contact all wobble from shot to shot, and the air isn't still either.
 
-## Requirements
+So the model has two layers. A deterministic one integrates the flight with drag, Magnus lift and spin decay. A Monte Carlo layer on top adds Gaussian air turbulence and player execution error, which turns every shot into a distribution of possible landing points rather than a single trajectory.
 
-```
-python >= 3.9
-numpy
-matplotlib
-scipy
-```
+Seen that way, topspin stops looking like a trick for hitting harder and starts looking like a stabiliser. It shrinks how much your mistakes move the ball.
+
+## What the simulations show
+
+- The descent angle steepens by **3.2°**, and the maximum safe launch speed rises from 9.18 to 14.83 m/s — **61%** at 6,000 RPM, and already 41% by 3,000.
+- Mean squared landing displacement drops **83%**, and the Shannon entropy of the landing distribution falls **33%**, from 3.31 to 2.21 bits.
+- Under moderate execution error a topspin loop lands safely **91%** of the time; a flat drive manages **45%** from the same error distribution.
+- Launched at 12.5 m/s into club-level turbulence, 95% of topspin shots land on the table and essentially none of the flat ones do — the flat drive at that pace simply sails long. The landing spread is 3.5× tighter.
+- All of that traces back to one thing: topspin contracts the sensitivity of landing position to launch error by **62%**. The other effects follow from it.
+- More spin isn't always better. There's an interior optimum that rises with pace — about 1,600 RPM at 10 m/s, climbing toward the search ceiling by 13.5 m/s. Over-spinning a slow ball makes it land short.
+- The 3D extension reproduces curved sidespin serves, deflecting the ball 20–27 cm across the table.
+
+## Does it match real balls?
+
+Everything above is simulated, so the real test is whether the same engine predicts shots it has never seen.
+
+I used the public [SpinDOE dataset](https://github.com/cogsys-tuebingen/spindoe) (Gossard et al., 2023), which records ball trajectories alongside an accurately measured spin from a printed-dot method. From it I kept the 133 trajectories with a measured spin and a long enough tracked arc.
+
+The test is deliberately strict. For each shot I read launch speed and angle from the first few frames only, take the spin straight from the dataset, and let the model predict the entire rest of the flight with nothing fitted to the later points. Across all 133 shots, spanning −2,900 to +4,700 RPM, the median error is **37.8 mm** over the whole arc, with a median R² of **0.994**.
+
+In plainer terms: on a typical shot the predicted path stays within about four centimetres of the real ball across a flight of two to three metres, with every physical parameter fixed in advance.
+
+## Running it
 
 ```bash
 pip install -r requirements.txt
+python run_all.py
 ```
 
-## Running
-
-Each script writes its output into `figures/` and can be run from anywhere:
+That writes every figure except the real-data one into `figures/`. That last one needs the SpinDOE dataset, which isn't redistributed here:
 
 ```bash
-python src/fig01_02_phase_diagram.py
-python src/fig03_spin_direction.py
-python src/fig04_05_landing_variance.py
-python src/fig06_shannon_entropy.py
-python src/fig07_08_stochastic_spread.py
-python src/fig09_biomechanics.py
-python src/fig10_human_error.py
+git clone --depth 1 https://github.com/cogsys-tuebingen/spindoe.git
+cd spindoe/data/trajectories && unzip -o trajectories.zip -d _t && cd ../../..
+python convert_spindoe.py spindoe/data/trajectories/_t
+python make_fig16.py
 ```
 
-## Scripts and figures
+`run_all.py` picks the dataset up automatically if it's already there.
 
-| Script | Paper figures |
+You can also point the validator at your own tracked shots. It only needs ball position over time, and it's flexible about column names, units and frame rates:
+
+```bash
+python validate_real_data.py            # self-check on synthetic data, no files needed
+python validate_real_data.py myshot.csv --framecol frame --fps 240 --units mm
+```
+
+Without a measured spin it reports descriptive and hold-out fits only, and says so, rather than claiming a prediction it can't support.
+
+## Files
+
+| Script | Produces |
 |---|---|
-| `engine.py` | shared physics core (Figs 1, 2, 4, 5, 6, 10) |
-| `engine_odeint.py` | shared physics core (Figs 3, 9) |
-| `fig01_02_phase_diagram.py` | Fig 1 (phase diagram), Fig 2 (critical velocity) |
-| `fig03_spin_direction.py` | Fig 3 (topspin / no spin / backspin) |
-| `fig04_05_landing_variance.py` | Fig 4 (landing std dev), Fig 5 (MSD) |
-| `fig06_shannon_entropy.py` | Fig 6 (Shannon entropy) |
-| `fig07_08_stochastic_spread.py` | Fig 7 (trajectory bundles), Fig 8 (landing histogram) |
-| `fig09_biomechanics.py` | Fig 9 (contact height) |
-| `fig10_human_error.py` | Fig 10 (execution error tolerance) |
+| `tt_engine.py` | the 2D engine; nearly every result in the paper comes from this one |
+| `tt_engine3d.py` | 3D extension with sidespin; reduces exactly to the 2D engine when sidespin is zero |
+| `figures.py` | paper figures 1–10 |
+| `extras.py` | paper figures 11 and 12 |
+| `fig13_sidespin.py` | paper figure 13, plus a supplementary saturation curve |
+| `fig14_optimal.py` | paper figure 14 |
+| `fig15_validation.py` | parameter-recovery check on synthetic data — a method test, not a figure in the paper |
+| `convert_spindoe.py` | turns SpinDOE trajectories into the validator's format |
+| `validate_real_data.py` | validates the model against tracked shots from any source |
+| `make_fig16.py` | **paper figure 15**, the real-data validation |
 
-## Physics
+The script names run one ahead of the paper from `fig15` onward, because the synthetic parameter-recovery check didn't make the final version. `make_fig16.py` is the one that produces the paper's Figure 15.
 
-Two engines implement the model with different integrators and coordinate
-frames:
+## The physics
 
-| Engine | Integrator | Frame | Figures |
-|---|---|---|---|
-| `engine.py` | Euler, dt = 1 ms | table at `y = 0`, launch `x = 0.15` | 1, 2, 4, 5, 6, 10 |
-| `engine_odeint.py` | `scipy.odeint` (LSODA) | table at `z = 0.76`, launch `x = 0.0` | 3, 9 |
+One engine, one coordinate frame, every force derivable on paper. `x` runs along the table with the surface at `y = 0`; the near edge is `x = 0`, the far edge `x = 2.74 m`, the net at `x = 1.37 m`. Positive RPM means topspin.
 
-Both take positive rpm to mean topspin. Shared model:
+- **Drag** — Reynolds-dependent with a sigmoid drag-crisis transition, `C_D = 0.55 − 0.08 / (1 + exp(1.5e−4 (Re − 28000)))`.
+- **Magnus lift** — the Watts–Ferrer saturating model, `C_L = 1 / (2 + 1/S)` with spin parameter `S = ωr / v`.
+- **Spin decay** — exponential, `ω(t) = ω₀ exp(−k_s t)` with `k_s = 0.08 s⁻¹`.
+- **Turbulence** — additive Gaussian velocity noise, integrated with Euler–Maruyama.
 
-- **Magnus lift** - Watts-Ferrer saturated model, `CL = 1 / (2 + 1/S)`, with
-  spin parameter `S = omega*r / v`.
-- **Drag** - Reynolds-dependent with a sigmoid drag-crisis transition,
-  `CD = 0.55 - 0.08 / (1 + exp(1.5e-4 (Re - 28000)))`.
-- **Spin decay** - exponential, `omega(t) = omega_0 exp(-k_s t)`,
-  `k_s = 0.08 s^-1`.
-- **Stochastic forcing** - Euler-Maruyama integration of additive Gaussian
-  acceleration noise, framed via Fokker-Planck.
+Deterministic runs use RK4. Stochastic runs use Euler–Maruyama instead, because a Wiener noise term is only first-order integrable — RK4 would be a mistake there, not an upgrade.
 
-Ball and table constants follow ITTF regulation: 40 mm diameter, 2.7 g,
-2.74 m table, 15.25 cm net.
+Ball and table constants follow ITTF regulation: 40 mm diameter, 2.7 g, 2.74 m table, 15.25 cm net.
 
-## Results
+## What it doesn't do
 
-Headline values reproduced by the simulations:
+The core analysis is two-dimensional. The 3D engine handles sidespin but the main results don't use it, and the larger errors on the real dataset came mostly from shots with strong sidespin, which a model living in a single vertical plane can't fully capture.
 
-- **59%** increase in maximum safe launch speed at 6,000 RPM (Figs 1, 2)
-- **82%** reduction in mean squared landing displacement (Figs 4, 5)
-- **34%** Shannon-entropy reduction of the landing distribution, 3.36 -> 2.21
-  bits (Fig 6)
-- **3.2x** variance ratio between the no-spin and topspin landing
-  distributions (Figs 7, 8)
-- Lower contact height amplifies the topspin speed benefit (Fig 9)
-- Topspin sustains a far higher safe-landing rate under execution error than a
-  flat drive (Fig 10)
+Air density is constant through the flight, and the bounce is excluded, so this covers the airborne phase only. The lift law saturates smoothly, so it won't reproduce the non-monotonic "lift crisis" reported for table tennis balls at intermediate spin (Miyazaki et al., 2017), nor the inverse Magnus force seen at very low spin. The spin-decay rate is a single representative value within the published range, not one fitted to the particular ball and surface.
 
-The stochastic scripts (Figs 4/5, 6, 7/8) are unseeded, so Monte Carlo results
-move by a few tenths of a percent between runs. `fig10_human_error.py` is
-seeded and fully reproducible.
+The real-data test uses a marked ball from a robot dataset. It hasn't been tried on ordinary broadcast or phone footage of live play, where spin has to be inferred from the trajectory rather than read off a printed dot.
 
-## License
+## Reproducibility
 
-MIT - see [LICENSE](LICENSE).
+The Monte Carlo scripts are seeded, so repeated runs reproduce the same figures. Figure 12 reseeds per sample size on purpose, so its confidence intervals reflect sampling error at each N rather than one shared draw.
+
+The numbers quoted above are what these scripts print today, and they're what you'll get if you run them. Two have shifted slightly as the engine was unified from the earlier two-integrator version: the landing-displacement reduction is now 83% where it used to come out at 82%, and the entropy drop is 33% where it was 34%. Everything else is unchanged.
 
 ## Citation
 
-> Topspin as an Aerodynamic Stabiliser: A Physics Simulation and Probabilistic
-> Analysis of Table Tennis Ball Flight. SIMULTECH 2026, Porto, Portugal.
+> Maruthi, S. (2026). *Topspin as an Aerodynamic Stabiliser: A Physics Simulation and Probabilistic Analysis of Table Tennis Ball Flight.* SIMULTECH 2026, Porto, Portugal.
+
+Machine-readable metadata is in [`CITATION.cff`](CITATION.cff).
+
+## Licence
+
+MIT — see [LICENSE](LICENSE).
 
 ## Acknowledgements
 
-Technical mentorship: Prof. Ganesh Mani. Shot nomenclature and tactical
-guidance contributed by a table tennis coach.
+Research mentorship from Prof. Ganesh Mani (Carnegie Mellon University). Shot nomenclature and tactical interpretation came from conversations with an experienced table tennis coach. The real-trajectory test uses the SpinDOE dataset (Gossard et al., 2023).
 
-All scientific content, code, analysis and conclusions are the author's own.
-Claude (Anthropic) was used for language assistance only.
+I used Claude (Anthropic) for code debugging, language polishing and grammar checking. All scientific content, simulation code, analysis, figures and conclusions are my own.
