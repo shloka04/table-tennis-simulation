@@ -2,7 +2,7 @@
 
 Simulation code for **"Topspin as an Aerodynamic Stabiliser: A Physics Simulation and Probabilistic Analysis of Table Tennis Ball Flight"**. An earlier baseline version of the engine was presented at SIMULTECH 2026 in Porto; this repository carries the extended work, with the unified engine, the three-dimensional sidespin extension and validation against recorded trajectories.
 
-Every figure and number below can be regenerated from the scripts here.
+Both papers are in [`paper/`](paper/): the extended version, and the shorter SIMULTECH conference paper that preceded it. Every figure and number below can be regenerated from the scripts here.
 
 ## The question
 
