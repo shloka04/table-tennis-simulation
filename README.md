@@ -6,21 +6,21 @@ Both papers are in [`paper/`](paper/): the extended version, and the shorter SIM
 
 ## The question
 
-Table tennis coaches tell you to loop the ball rather than hit it flat, and they're right, but the usual explanation stops at "topspin brings the ball down so you can hit harder." That's true and it isn't the whole story. I wanted to know what topspin is actually doing once you admit that nobody executes a shot perfectly — that your bat speed, your angle and your contact all wobble from shot to shot, and the air isn't still either.
+Coaches tell you to loop the ball rather than hit it flat. The usual explanation is that topspin brings the ball down so you can hit harder, which is true but incomplete. What I wanted to know was what topspin does once you accept that nobody executes a shot perfectly. Your bat speed varies, your angle varies, your contact point varies, and the air is not still either.
 
-So the model has two layers. A deterministic one integrates the flight with drag, Magnus lift and spin decay. A Monte Carlo layer on top adds Gaussian air turbulence and player execution error, which turns every shot into a distribution of possible landing points rather than a single trajectory.
+So the model has two layers. The first integrates the flight deterministically with drag, Magnus lift and spin decay. The second adds Gaussian air turbulence and player execution error on top, so each shot becomes a distribution of possible landing points instead of one trajectory.
 
-Seen that way, topspin stops looking like a trick for hitting harder and starts looking like a stabiliser. It shrinks how much your mistakes move the ball.
+Looked at that way, topspin is less a trick for hitting harder than a stabiliser. It shrinks how far your mistakes move the ball.
 
 ## What the simulations show
 
-- The descent angle steepens by **3.2°**, and the maximum safe launch speed rises from 9.18 to 14.83 m/s — **61%** at 6,000 RPM, and already 41% by 3,000.
-- Mean squared landing displacement drops **83%**, and the Shannon entropy of the landing distribution falls **33%**, from 3.31 to 2.21 bits.
-- Under moderate execution error a topspin loop lands safely **91%** of the time; a flat drive manages **45%** from the same error distribution.
-- Launched at 12.5 m/s into club-level turbulence, 95% of topspin shots land on the table and essentially none of the flat ones do — the flat drive at that pace simply sails long. The landing spread is 3.5× tighter.
-- All of that traces back to one thing: topspin contracts the sensitivity of landing position to launch error by **62%**. The other effects follow from it.
-- More spin isn't always better. There's an interior optimum that rises with pace — about 1,600 RPM at 10 m/s, climbing toward the search ceiling by 13.5 m/s. Over-spinning a slow ball makes it land short.
-- The 3D extension reproduces curved sidespin serves, deflecting the ball 20–27 cm across the table.
+- The descent angle steepens by **3.2°**. The maximum safe launch speed rises from 9.18 to 14.83 m/s, which is **61%** at 6,000 RPM and already 41% by 3,000.
+- Mean squared landing displacement drops **83%**. The Shannon entropy of the landing distribution falls **33%**, from 3.31 to 2.21 bits.
+- Under moderate execution error a topspin loop lands safely **91%** of the time. A flat drive manages **45%** from the same error distribution.
+- Launched at 12.5 m/s into club-level turbulence, 95% of topspin shots land on the table and essentially none of the flat ones do, because a flat drive at that pace simply sails long. The landing spread is 3.5 times tighter.
+- These are not separate effects. Topspin contracts the sensitivity of landing position to launch error by **62%**, and the rest follows from that.
+- More spin is not always better. The optimum is interior and rises with pace: about 1,600 RPM at 10 m/s, climbing to the search ceiling by 13.5 m/s. Over-spinning a slow ball makes it land short.
+- The 3D extension reproduces curved sidespin serves, deflecting the ball 20 to 27 cm across the table.
 
 ## Does it match real balls?
 
@@ -30,7 +30,7 @@ I used the public [SpinDOE dataset](https://github.com/cogsys-tuebingen/spindoe)
 
 The test is deliberately strict. For each shot I read launch speed and angle from the first few frames only, take the spin straight from the dataset, and let the model predict the entire rest of the flight with nothing fitted to the later points. Across all 133 shots, spanning −2,900 to +4,700 RPM, the median error is **37.8 mm** over the whole arc, with a median R² of **0.994**.
 
-In plainer terms: on a typical shot the predicted path stays within about four centimetres of the real ball across a flight of two to three metres, with every physical parameter fixed in advance.
+On a typical shot, then, the predicted path stays within about four centimetres of the real ball across a flight of two to three metres, with every physical parameter fixed in advance.
 
 ## Running it
 
@@ -69,7 +69,7 @@ Without a measured spin it reports descriptive and hold-out fits only, and says 
 | `extras.py` | paper figures 11 and 12 |
 | `fig13_sidespin.py` | paper figure 13, plus a supplementary saturation curve |
 | `fig14_optimal.py` | paper figure 14 |
-| `fig15_validation.py` | parameter-recovery check on synthetic data — a method test, not a figure in the paper |
+| `fig15_validation.py` | parameter-recovery check on synthetic data; a method test, not a figure in the paper |
 | `convert_spindoe.py` | turns SpinDOE trajectories into the validator's format |
 | `validate_real_data.py` | validates the model against tracked shots from any source |
 | `make_fig16.py` | **paper figure 15**, the real-data validation |
@@ -85,7 +85,7 @@ One engine, one coordinate frame, every force derivable on paper. `x` runs along
 - **Spin decay** — exponential, `ω(t) = ω₀ exp(−k_s t)` with `k_s = 0.08 s⁻¹`.
 - **Turbulence** — additive Gaussian velocity noise, integrated with Euler–Maruyama.
 
-Deterministic runs use RK4. Stochastic runs use Euler–Maruyama instead, because a Wiener noise term is only first-order integrable — RK4 would be a mistake there, not an upgrade.
+Deterministic runs use RK4. Stochastic runs use Euler–Maruyama instead, because a Wiener noise term is only first-order integrable, so using RK4 there would be wrong rather than more accurate.
 
 Ball and table constants follow ITTF regulation: 40 mm diameter, 2.7 g, 2.74 m table, 15.25 cm net.
 
