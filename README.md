@@ -106,6 +106,8 @@ The real-data test uses a marked ball from a robot dataset. It has not been trie
 
 The Monte Carlo scripts are seeded, so repeated runs reproduce the same figures. Figure 12 reseeds per sample size deliberately, so its confidence intervals reflect sampling error at each N rather than one shared draw.
 
+The numbers above are what these scripts print today. Two have shifted slightly since the engine was unified from the earlier two-integrator version: landing-displacement reduction is now 83% where it was 82%, and the entropy drop is 33% where it was 34%. Everything else is unchanged.
+
 ## Citation
 
 > Maruthi, S. (2026). Topspin as an Aerodynamic Stabiliser: A Physics Simulation and Probabilistic Analysis of Table Tennis Ball Flight. In *Proceedings of the 16th International Conference on Simulation and Modeling Methodologies, Technologies and Applications (SIMULTECH 2026)*, pages 114–125. SCITEPRESS. doi:[10.5220/0015182700004094](https://doi.org/10.5220/0015182700004094)

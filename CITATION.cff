@@ -4,6 +4,7 @@ title: "Topspin as an Aerodynamic Stabiliser: simulation code"
 authors:
   - family-names: "Maruthi"
     given-names: "Shloka"
+    affiliation: "Mallya Aditi International School, Bengaluru, India"
 license: MIT
 repository-code: "https://github.com/shloka04/table-tennis-simulation"
 keywords:
@@ -20,8 +21,19 @@ preferred-citation:
   authors:
     - family-names: "Maruthi"
       given-names: "Shloka"
+      affiliation: "Mallya Aditi International School, Bengaluru, India"
+  collection-title: "Proceedings of the 16th International Conference on
+    Simulation and Modeling Methodologies, Technologies and Applications
+    (SIMULTECH 2026)"
   conference:
     name: "SIMULTECH 2026 - 16th International Conference on Simulation and
       Modeling Methodologies, Technologies and Applications"
   location: "Porto, Portugal"
+  publisher:
+    name: "SCITEPRESS - Science and Technology Publications"
   year: 2026
+  start: 114
+  end: 125
+  doi: "10.5220/0015182700004094"
+  isbn: "978-989-758-867-0"
+  issn: "2184-2841"
