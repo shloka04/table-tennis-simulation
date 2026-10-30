@@ -6,7 +6,11 @@ What interested me was what topspin does once you accept that nobody executes a 
 
 It shrinks how far your mistakes move the ball.
 
-Simulation code for *"Topspin as an Aerodynamic Stabiliser: A Physics Simulation and Probabilistic Analysis of Table Tennis Ball Flight"*. An earlier version of the engine was presented at **SIMULTECH 2026** in Porto. Both papers are in [`paper/`](paper/), and every figure and number below regenerates from the scripts here.
+Simulation code for *"Topspin as an Aerodynamic Stabiliser: A Physics Simulation and Probabilistic Analysis of Table Tennis Ball Flight"*.
+
+An earlier version of the engine was published at **SIMULTECH 2026** in Porto — *Proceedings of the 16th International Conference on Simulation and Modeling Methodologies, Technologies and Applications*, pages 114–125, [doi:10.5220/0015182700004094](https://doi.org/10.5220/0015182700004094). Both that paper and the extended version are in [`paper/`](paper/), and every figure and number below regenerates from the scripts here.
+
+The figures quoted throughout are from the extended version. The published SIMULTECH paper reports the earlier two-integrator engine, where the same effects came out at 8.64° of descent steepening, +59% safe speed and 82% displacement reduction.
 
 ## The model
 
@@ -102,13 +106,13 @@ The real-data test uses a marked ball from a robot dataset. It has not been trie
 
 The Monte Carlo scripts are seeded, so repeated runs reproduce the same figures. Figure 12 reseeds per sample size deliberately, so its confidence intervals reflect sampling error at each N rather than one shared draw.
 
-The numbers above are what these scripts print today. Two have shifted slightly since the engine was unified from the earlier two-integrator version: landing-displacement reduction is now 83% where it was 82%, and the entropy drop is 33% where it was 34%. Everything else is unchanged.
-
 ## Citation
 
-> Maruthi, S. (2026). *Topspin as an Aerodynamic Stabiliser: A Physics Simulation and Probabilistic Analysis of Table Tennis Ball Flight.* SIMULTECH 2026, Porto, Portugal.
+> Maruthi, S. (2026). Topspin as an Aerodynamic Stabiliser: A Physics Simulation and Probabilistic Analysis of Table Tennis Ball Flight. In *Proceedings of the 16th International Conference on Simulation and Modeling Methodologies, Technologies and Applications (SIMULTECH 2026)*, pages 114–125. SCITEPRESS. doi:[10.5220/0015182700004094](https://doi.org/10.5220/0015182700004094)
 
 Machine-readable metadata is in [`CITATION.cff`](CITATION.cff).
+
+The published paper is redistributed here under CC BY-NC-ND 4.0, the licence it was released under. The code in this repository is MIT.
 
 ## Acknowledgements
 
